@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+        <title>数据渲染</title>
+</head>
+<body>
+    <div id="main" style="height:600px;width: 1100px;margin-left: 30px;"></div>
+    <script src="http://echarts.baidu.com/build/dist/echarts.js"></script>
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script type="text/javascript">
+        // 路径配置
+        var mData = [];
+        setInterval(function () {
+            d3.csv("https://github.com/JakeRed/CephSwiftTest/blob/master/C35.csv")
+                .header("Content-Type", "application/x-www-form-urlencoded")
+                .post("a=2&b=3", function(error, data) {
+
+     var ret = true;
+                    if (mData.length === data.length){
+                        for( var i=0; i< data.length; i++ ){
+                            if (mData[i].X === data[i].X && mData[i].Y === data[i].Y){
+                                continue;
+                            }else {
+                                ret = false;
+                                break;
+                            }
+                        }
+                        if (ret) return;
+                    }
+                    mData = data;
+                    var result = [];
+                    for( var i=0; i<data.length; i++ ){
+                        var x = data[i].X;
+                        var y = data[i].Y;
+                        var obj = [];
+                        obj[0] = x;
+                        obj[1] = y;
+                        result.push(obj);
+                    }
+                    
+                    console.log(result);
+
+                    require.config({
+                        paths: {
+                            echarts: 'http://echarts.baidu.com/build/dist'
+                        }
+                    });
+                    // 使用
+                    require(
+                        [
+                            'echarts',
+                            'echarts/chart/line',//需要折线图则加载line模块
+                            'echarts/chart/bar' // 使用柱状图就加载bar模块，按需加载
+                        ],
+                        function (ec) {
+                            // 基于准备好的dom，初始化echarts图表
+                            var myChart = ec.init(document.getElementById('main'));
+                            var xAxis = [0,1,2,3,4,5,6,7];
+                            option = {
+                                tooltip : {
+                                    trigger: 'axis'
+                                },
+                                legend: {
+                                    data:['邮件营销']
+                                },
+                                toolbox: {
+                                    show : true,
+                                    feature : {
+                                        mark : {show: true},
+                                        dataView : {show: true, readOnly: false},
+                                        magicType : {show: true, type: ['line', 'bar', 'stack', 'tiled']},
+                                        restore : {show: true},
+                                        saveAsImage : {show: true}
+                                    }
+                                },
+                                calculable : true,
+                                xAxis : [
+                                    {
+                                        type : 'value'
+                                    }
+                                ],
+                                yAxis : [
+                                    {
+                                        type : 'value'
+                                    }
+                                ],
+                                series : [
+                                    {
+                                        name:'邮件营销',
+                                        type:'line',
+                                        smooth: true,
+                                        data:result
+                                    }
+                                ]
+                            };
+
+                            // 为echarts对象加载数据
+                            myChart.setOption(option);
+                        }
+                    );
+                });
+        }, 1000);
+
+        </script>
+</body>
